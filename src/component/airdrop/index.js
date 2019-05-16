@@ -50,7 +50,7 @@ class Airdrop extends Component {
             <Nav className="mr-auto" style={{flex:1,justifyContent: "center",alignItems: "center"}}>
               <Badge pill variant="primary">
                 <h3> 
-                  Airdrop Tool 
+                  Airdrop Tool (limited)
                 </h3>
               </Badge>
             </Nav>
