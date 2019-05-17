@@ -53,7 +53,7 @@ export const getNetworkName = () => {
 
   switch (networkId) {
     case "1":
-      networkName = "Main";
+      networkName = "Mainnet";
       break;
     case "2":
     networkName = "Morden";
@@ -71,7 +71,7 @@ export const getNetworkName = () => {
       networkName = "Unknown";
   }
 
-  return networkName.toLowerCase()
+  return networkName
 }
 
 export const doAirdrop = (erc20Address, airdropAddress, addresses, amounts) => {

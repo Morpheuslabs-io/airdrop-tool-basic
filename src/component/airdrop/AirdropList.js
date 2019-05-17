@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import Papa from 'papaparse';
 import Button2 from '@material-ui/core/Button';
 import swal from "sweetalert2";
-import {isValidAddress, getNetworkName} from '../../util/blockchainHelper';
+import {isValidAddress, getNetworkName, preCheckMetaMask, getMetamaskAddress} from '../../util/blockchainHelper';
 import Spinner from 'react-spinkit';
 
 import AirdropModal from './AirdropModal'
@@ -130,13 +130,16 @@ class AirdropList extends Component {
   airdropWithMetamask = () => {
     // console.log('airdropWithMetamask - this.state.erc20Address:', this.state.erc20Address)
     // console.log('airdropWithMetamask - this.state.airdroplist:', this.state.airdroplist)
+    preCheckMetaMask()
     let metamaskNet = getNetworkName()
-    let chosenNet = this.props.radioSelected
-    if (metamaskNet !== chosenNet) {
-      swal(`Your currently-chosen net (${chosenNet}) is different from current Metamask net (${metamaskNet})`, "", "warning");
+    if (metamaskNet.toLowerCase() !== 'rinkeby' && metamaskNet.toLowerCase() !== 'mainnet' ) {
+      swal("Please use Rinkeby or Mainnet", `Your current Metamask network (${metamaskNet}) is not supported.`, "warning");
       return
     }
-    this.handleToggleModal()
+
+    if (getMetamaskAddress()) {
+      this.handleToggleModal()
+    }
   }
 
   handleToggleModal = () => {
@@ -180,7 +183,15 @@ class AirdropList extends Component {
           <div className='widget-header'>
             <div>
               <p className='title'>Airdrop Tool</p>
-              <p className='description'>Please enter information</p>
+              <p className='description'>
+                This tool is used to airdrop a specified ERC20 token to a list of wallet addresses that is provided by uploading a CSV file or by adding manually.
+              </p>
+              <p className='description'>
+                <b> Either Rinkeby testnet or Mainnet is supported. </b>
+              </p>
+              <p className='description'>
+                This limited version supports maximum 100 addresses.
+              </p>
             </div>
           </div>
           {
@@ -197,7 +208,7 @@ class AirdropList extends Component {
                 <div>
                   <Row>
                     <Col md={5}>
-                      <InputField id='erc20Address' nameLabel='ERC20 Token Address' type='text' onChange={this.handleChange} value={this.state.erc20Address}
+                      <InputField id='erc20Address' nameLabel='ERC20 Token Address' tooltip='This is the address of the token for airdrop' type='text' onChange={this.handleChange} value={this.state.erc20Address}
                                   onBlur={this.handleBlurERC20Address} hasError={this.state.errorErc20Address}/>
                     </Col>
                   </Row>

@@ -13,7 +13,8 @@ import {
   getERC20TokenDetails,
   isValidAddress,
   getMetamaskAddress,
-  doAirdrop
+  doAirdrop,
+  getNetworkName
 } from "../../util/blockchainHelper"
 import Web3 from "web3";
 import swal from "sweetalert2";
@@ -42,8 +43,8 @@ class AirdropModalContainer extends Component {
       userAccount: '',
       gasPrice: 0,
 
-      radioSelected: '',
-      airdropContractAddress: ''
+      airdropContractAddress: '',
+      metamaskNet: ''
     }
   }
 
@@ -52,10 +53,16 @@ class AirdropModalContainer extends Component {
 
     console.log('airdropAddressBatch:', airdropAddressBatch);
     console.log('airdropAmountBatch:', airdropAmountBatch);
+
+    if (!tokenInfo.name || tokenInfo.name === '' || isNaN(tokenInfo.userBalance)) {
+      swal('Error', `The specified token does not exist on ${this.state.metamaskNet}`)
+      return
+    }
     
     // Check if user has enough tokens for airdrop
     if (parseFloat(airdropTokenAmount) > parseFloat(tokenInfo.userBalance)) {
       swal('Error', 'Not enough tokens for doing airdrop')
+      return
     }
 
     this.props.setIsProcessing(true)
@@ -177,6 +184,21 @@ class AirdropModalContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let metamaskNet = getNetworkName().toLowerCase()
+    let curAddr = getMetamaskAddress()
+    if (!curAddr) return
+    if (metamaskNet === 'rinkeby' || metamaskNet === 'mainnet' ) {
+      if (metamaskNet !== this.state.metamaskNet) {
+        console.log('Current net:', metamaskNet);
+        this.setState({
+          metamaskNet,
+          airdropContractAddress: metamaskNet === 'rinkeby' ? airdropContractAddressRinkeby : airdropContractAddressMainnet
+        })
+      }
+    } else {
+      return
+    }
+
     if (this.props.erc20Address !== nextProps.erc20Address) {
       let userAccount = getMetamaskAddress()
       this.setState({
@@ -188,18 +210,22 @@ class AirdropModalContainer extends Component {
         this.getERC20TokenDetails(erc20Address, userAccount)
           .then(tokenInfo => {
             tokenInfo.address = erc20Address
-            // console.log('token:', tokenInfo);
             this.setState({
               tokenInfo
             })
-          })
 
-        getNormalGasPrice().then(gasPrice => {
-          console.log('gasPrice:', gasPrice);
-          this.setState({
-            gasPrice
+            getNormalGasPrice().then(gasPrice => {
+              console.log('gasPrice:', gasPrice);
+              this.setState({
+                gasPrice
+              })
+            })
           })
-        })
+          .catch(err => {
+            console.log('token not exist');
+            swal('Error', `The specified token does not exist on ${getNetworkName()}`)
+            return
+          })  
       }
     }
 
@@ -241,36 +267,14 @@ class AirdropModalContainer extends Component {
         airdropReceiverAmount: airdroplist.length
       })
     }
-
-    if (this.props.radioSelected !== nextProps.radioSelected) {
-      let radioSelected = nextProps.radioSelected
-      if (this.state.radioSelected !== radioSelected) {
-        console.log('Newly-updated net:', radioSelected);
-        this.setState({
-          radioSelected,
-          airdropContractAddress: radioSelected === 'rinkeby' ? airdropContractAddressRinkeby : airdropContractAddressMainnet
-        })
-      }
-    }
   }
 
   async componentDidMount() {
     let {web3} = this.state
     let erc20ABI = await (await fetch("./erc20.abi.json")).json();
-    // console.log("arc20ABI: ",erc20ABI);
     let erc20ContractInst = web3.eth.contract(erc20ABI)
-    // let userAccount = getMetamaskAddress()
-
-    // let net = this.props.net.type
-    // console.log('Current net:', net);
-    let net=''
-
     this.setState({
-      erc20ContractInst,
-      // userAccount,
-      net,
-      // airdropContractAddress: net === 'rinkeby' ? airdropContractAddressRinkeby : airdropContractAddressMainnet
-      airdropContractAddress: airdropContractAddressRinkeby
+      erc20ContractInst
     })
   }
 
@@ -334,6 +338,9 @@ class AirdropModalContainer extends Component {
                 </li>
                 <li>
                   <b> Your current account address: </b> {userAccount}
+                </li>
+                <li>
+                  <b> Your current network: </b> {getNetworkName()}
                 </li>
               </ul>
             </div>

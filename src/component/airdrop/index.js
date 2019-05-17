@@ -54,22 +54,6 @@ class Airdrop extends Component {
                 </h3>
               </Badge>
             </Nav>
-            <Nav>
-              <ButtonGroup aria-label="First group">
-                <Button 
-                  color="outline-secondary" 
-                  onClick={() => this.onRadioBtnClick('rinkeby')} 
-                  active={this.state.radioSelected === 'rinkeby'}>
-                    Rinkeby Testnet
-                </Button>
-                <Button 
-                  color="outline-secondary" 
-                  onClick={() => this.onRadioBtnClick('mainnet')} 
-                  active={this.state.radioSelected === 'mainnet'}>
-                    Mainnet
-                </Button>
-              </ButtonGroup>
-            </Nav>
           </Navbar.Collapse>
         </Navbar>
         <div className='page-content'>
