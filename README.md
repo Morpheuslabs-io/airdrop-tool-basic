@@ -42,3 +42,13 @@ This is a web app running and listenning at port `8080`.
 To determine its URL, have a look at the `Machines` small panel and then right-click on (for example) `truffle/dev-machine` to select `Servers`. This will show up a view where the web-app `https` link can be seen at the
 row `http-server`. Please note that, all the ports displayed in this view meant to be reserved for external access.
 
+## Smart contract
+
+  - For this Airdrop dApp, there is only 1 simple smart contract `contracts/Airdrop.sol` with its built JSON file located in `src/artifacts/Airdrop.json`.
+
+  - To re-compile and re-deploy, it's possible to use the online Remix tool [https://remix.ethereum.org/] that interacts with `Metamask`. 
+
+  - Upon re-compiling for new modification of the smart contract, fetch the JSON file from the online Remix tool to replace existing the JSON file.
+
+  - Upon re-deployment, the `REACT_APP_AIRDROP_CONTRACT_RINKEBY` value in `.env` file must be updated.
+
